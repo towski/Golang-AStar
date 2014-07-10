@@ -66,8 +66,8 @@ func setDest(s *Scene) {
 // Init origin, destination. Put the origin point into the openlist by the way
 func InitAstar(s *Scene) {
     Result = 10
-	setOrig(s)
-	setDest(s)
+	//setOrig(s)
+	//setDest(s)
 	openList = append(openList, origin)
 }
 
