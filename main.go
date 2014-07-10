@@ -1,18 +1,20 @@
 package main
 
 import (
-	"time"
+	"github.com/towski/Golang-AStar/utils"
 )
 
 func main() {
-	var scene Scene
-	scene.initScene(23, 70)
-	scene.addWalls(10)
-	initAstar(&scene)
+	var scene utils.Scene
+	scene.InitScene(23, 70)
+	scene.AddWalls(10)
+	utils.InitAstar(&scene)
 
 	for {
-		findPath(&scene)
-		scene.draw()
-		time.Sleep(50 * time.Millisecond)
+		utils.FindPath(&scene)
+		//time.Sleep(50 * time.Millisecond)
+        if utils.Result != 10 {
+            break
+        }
 	}
 }
