@@ -13,6 +13,7 @@ type Point struct {
 	X, Y    int
 	H, G, F int
 	Parent  *Point
+	Child  *Point
 }
 
 func (p Point) String() string {
@@ -44,7 +45,7 @@ var Result int
 
 // Set the origin point
 func setOrig(s *Scene) {
-	origin = Point{GetRandInt(s.rows-2) + 1, GetRandInt(s.cols-2) + 1, 0, 0, 0, nil}
+	origin = Point{GetRandInt(s.Rows-2) + 1, GetRandInt(s.Cols-2) + 1, 0, 0, 0, nil, nil}
 	if s.Data[origin.X][origin.Y] == ' ' {
 		s.Data[origin.X][origin.Y] = 'A'
 	} else {
@@ -52,9 +53,19 @@ func setOrig(s *Scene) {
 	}
 }
 
+func SetOrig(s *Scene, x int, y int) {
+	origin = Point{x, y, 0, 0, 0, nil, nil}
+	if s.Data[origin.X][origin.Y] == ' ' {
+		s.Data[origin.X][origin.Y] = 'A'
+	} else {
+		SetOrig(s, x, y)
+	}
+	openList = append(openList, origin)
+}
+
 // Set the destination point
 func setDest(s *Scene) {
-	dest = Point{GetRandInt(s.rows-2) + 1, GetRandInt(s.cols-2) + 1, 0, 0, 0, nil}
+	dest = Point{GetRandInt(s.Rows-2) + 1, GetRandInt(s.Cols-2) + 1, 0, 0, 0, nil, nil}
 
 	if s.Data[dest.X][dest.Y] == ' ' {
 		s.Data[dest.X][dest.Y] = 'B'
@@ -63,12 +74,22 @@ func setDest(s *Scene) {
 	}
 }
 
+func SetDest(s *Scene, x int, y int) {
+	dest = Point{x, y, 0, 0, 0, nil, nil}
+
+	if s.Data[dest.X][dest.Y] == ' ' {
+		s.Data[dest.X][dest.Y] = 'B'
+	} else {
+		SetDest(s, x, y)
+	}
+}
+
 // Init origin, destination. Put the origin point into the openlist by the way
 func InitAstar(s *Scene) {
     Result = 10
-	setOrig(s)
-	setDest(s)
-	openList = append(openList, origin)
+	//setOrig(s)
+	//setDest(s)
+	//openList = append(openList, origin)
 }
 
 func FindPath(s *Scene) {
@@ -106,28 +127,28 @@ func getWalkable(p Point, s *Scene) []Point {
 	leftdown := s.Data[row+1][col-1]
 	rightdown := s.Data[row+1][col+1]
 	if (left == ' ') || (left == 'B') {
-		around = append(around, Point{row, col - 1, 0, 0, 0, &p})
+		around = append(around, Point{row, col - 1, 0, 0, 0, &p, nil})
 	}
 	if (leftup == ' ') || (leftup == 'B') {
-		around = append(around, Point{row - 1, col - 1, 0, 0, 0, &p})
+		around = append(around, Point{row - 1, col - 1, 0, 0, 0, &p, nil})
 	}
 	if (up == ' ') || (up == 'B') {
-		around = append(around, Point{row - 1, col, 0, 0, 0, &p})
+		around = append(around, Point{row - 1, col, 0, 0, 0, &p, nil})
 	}
 	if (rightup == ' ') || (rightup == 'B') {
-		around = append(around, Point{row - 1, col + 1, 0, 0, 0, &p})
+		around = append(around, Point{row - 1, col + 1, 0, 0, 0, &p, nil})
 	}
 	if (right == ' ') || (right == 'B') {
-		around = append(around, Point{row, col + 1, 0, 0, 0, &p})
+		around = append(around, Point{row, col + 1, 0, 0, 0, &p, nil})
 	}
 	if (rightdown == ' ') || (rightdown == 'B') {
-		around = append(around, Point{row + 1, col + 1, 0, 0, 0, &p})
+		around = append(around, Point{row + 1, col + 1, 0, 0, 0, &p, nil})
 	}
 	if (down == ' ') || (down == 'B') {
-		around = append(around, Point{row + 1, col, 0, 0, 0, &p})
+		around = append(around, Point{row + 1, col, 0, 0, 0, &p, nil})
 	}
 	if (leftdown == ' ') || (leftdown == 'B') {
-		around = append(around, Point{row + 1, col - 1, 0, 0, 0, &p})
+		around = append(around, Point{row + 1, col - 1, 0, 0, 0, &p, nil})
 	}
 	return around
 }
@@ -170,7 +191,7 @@ func removeFromOpenList(p Point) {
 func addToCloseList(p Point, s *Scene) {
 	removeFromOpenList(p)
 	if (p.X == dest.X) && (p.Y == dest.Y) {
-		//generatePath(p, s)
+		generatePath(p, s)
         FinalPoint = p
         // don't draw at the end
 		//s.Draw()
@@ -221,24 +242,25 @@ func generatePath(p Point, s *Scene) {
 		s.Data[p.X][p.Y] = '*'
 	}
 	if p.Parent != nil {
+        (*(p.Parent)).Child = &p
 		generatePath(*(p.Parent), s)
 	}
 }
 
 type Scene struct {
-	rows, cols int
+	Rows, Cols int
 	Data      [][]byte
 }
 
-func (s *Scene) InitScene(rows int, cols int) {
-	s.rows = rows
-	s.cols = cols
+func (s *Scene) InitScene(Rows int, Cols int) {
+	s.Rows = Rows
+	s.Cols = Cols
 
-	s.Data = make([][]byte, s.rows)
-	for i := 0; i < s.rows; i++ {
-		s.Data[i] = make([]byte, s.cols)
-		for j := 0; j < s.cols; j++ {
-			if i == 0 || i == s.rows-1 || j == 0 || j == s.cols-1 {
+	s.Data = make([][]byte, s.Rows)
+	for i := 0; i < s.Rows; i++ {
+		s.Data[i] = make([]byte, s.Cols)
+		for j := 0; j < s.Cols; j++ {
+			if i == 0 || i == s.Rows-1 || j == 0 || j == s.Cols-1 {
 				s.Data[i][j] = '#'
 			} else {
 				s.Data[i][j] = ' '
@@ -248,8 +270,8 @@ func (s *Scene) InitScene(rows int, cols int) {
 }
 
 func (s *Scene) Draw() {
-	for i := 0; i < s.rows; i++ {
-		for j := 0; j < s.cols; j++ {
+	for i := 0; i < s.Rows; i++ {
+		for j := 0; j < s.Cols; j++ {
 			var color string
 			switch s.Data[i][j] {
 			case '#':
@@ -276,12 +298,12 @@ func (s *Scene) AddWalls(num int) {
 	for i := 0; i < num; i++ {
 		ori := GetRandInt(2)
 		length := GetRandInt(16) + 1
-		row := GetRandInt(s.rows)
-		col := GetRandInt(s.cols)
+		row := GetRandInt(s.Rows)
+		col := GetRandInt(s.Cols)
 		switch ori {
 		case 0:
 			for i := 0; i < length; i++ {
-				if col+i >= s.cols {
+				if col+i >= s.Cols {
 					break
 				}
 				s.Data[row][col+i] = '#'
@@ -289,7 +311,7 @@ func (s *Scene) AddWalls(num int) {
 
 		case 1:
 			for i := 0; i < length; i++ {
-				if row+i >= s.rows {
+				if row+i >= s.Rows {
 					break
 				}
 				s.Data[row+i][col] = '#'
