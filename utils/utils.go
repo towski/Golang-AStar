@@ -94,6 +94,9 @@ func InitAstar(s *Scene) {
 
 func FindPath(s *Scene) {
 	current := getFMin()
+    if Result == -1 {
+        return
+    }
 	addToCloseList(current, s)
 	walkable := getWalkable(current, s)
 	for _, p := range walkable {
@@ -105,6 +108,7 @@ func getFMin() Point {
 	if len(openList) == 0 {
 		fmt.Println("No way!!!")
         Result = -1
+        return Point{0,0, 0, 0, 0, nil, nil}
 	}
 	index := 0
 	for i, p := range openList {

@@ -7,7 +7,7 @@ import (
 func main() {
 	var scene utils.Scene
 	scene.InitScene(23, 70)
-	scene.AddWalls(10)
+	scene.AddWalls(60)
 	utils.InitAstar(&scene)
 
 	for {
