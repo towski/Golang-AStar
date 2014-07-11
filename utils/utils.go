@@ -55,7 +55,7 @@ func setOrig(s *Scene) {
 
 func SetOrig(s *Scene, x int, y int) {
 	origin = Point{x, y, 0, 0, 0, nil, nil}
-	if s.Data[origin.X][origin.Y] == ' ' {
+	if s.Data[origin.X][origin.Y] == ' ' || s.Data[origin.X][origin.Y] == '#' {
 		s.Data[origin.X][origin.Y] = 'A'
 	} else {
 		SetOrig(s, x, y)
@@ -77,7 +77,7 @@ func setDest(s *Scene) {
 func SetDest(s *Scene, x int, y int) {
 	dest = Point{x, y, 0, 0, 0, nil, nil}
 
-	if s.Data[dest.X][dest.Y] == ' ' {
+	if s.Data[dest.X][dest.Y] == ' ' || s.Data[dest.X][dest.Y] == '#' {
 		s.Data[dest.X][dest.Y] = 'B'
 	} else {
 		SetDest(s, x, y)
